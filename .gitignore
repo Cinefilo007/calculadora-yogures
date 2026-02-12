@@ -1,0 +1,8 @@
+# Agent and Brain files
+.agents/
+brain/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

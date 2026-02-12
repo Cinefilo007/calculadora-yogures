@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Yogures - Mi Negocio Casero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/1047/1047461.png" type="image/x-icon">
+</head>
+
+<body>
+    <div class="container">
+        <header class="animate">
+            <h1>🍦 Calculadora de Yogures</h1>
+            <p>Calcula tus precios de forma fácil y rápida</p>
+            <div id="tasa-bcv-container" class="tasa-bcv">
+                <span>Dólar BCV:</span>
+                <strong id="tasa-valor">Cargando...</strong>
+                <button id="btn-editar-tasa"
+                    style="background: none; border: none; color: white; cursor: pointer; padding: 0 5px; font-size: 0.8rem;"
+                    title="Cambiar tasa manualmente">✏️</button>
+            </div>
+            <p style="font-size: 0.75rem; margin-top: 5px; color: var(--mora-suave);">*Precios en Bolívares (Bs.)</p>
+        </header>
+
+        <main>
+            <!-- Sección de Ingredientes -->
+            <section class="card animate" style="animation-delay: 0.1s;">
+                <h2>🛒 Materiales e Ingredientes
+                    <span class="help-icon" title="Aquí anotas lo que compraste en el mercado">?</span>
+                </h2>
+                <div class="help-bubble">
+                    <strong>Hola Mamá:</strong> Anota lo que compraste. Si es comida (leche, fruta) usa
+                    <strong>gramos</strong>. Si son envases o cucharillas, usa <strong>unidades</strong>.
+                </div>
+
+                <form id="form-ingrediente" style="margin-top: 20px;">
+                    <div class="form-grid" style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
+                        <div class="input-group">
+                            <label>Nombre del Producto</label>
+                            <input type="text" id="nombre-ingrediente" placeholder="Ej: Vasos" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Precio (Bs)</label>
+                            <input type="number" id="precio-ingrediente" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="input-group">
+                            <label>¿Cuánto trae?</label>
+                            <div style="display: flex; gap: 5px;">
+                                <input type="number" id="cantidad-ingrediente" placeholder="Ej: 50" required
+                                    style="flex: 2;">
+                                <select id="unidad-ingrediente" class="unit-selector" style="flex: 1;">
+                                    <option value="g">g</option>
+                                    <option value="uni">uni</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        ➕ Añadir a mi lista
+                    </button>
+                </form>
+
+                <div id="lista-ingredientes" class="ingredient-list">
+                    <!-- Los ingredientes aparecerán aquí -->
+                </div>
+            </section>
+
+            <!-- Sección de Receta -->
+            <section class="card animate" style="animation-delay: 0.2s;">
+                <h2>👩‍🍳 Tu Receta de Hoy
+                    <span class="help-icon" title="Anota cuánto usas de cada cosa para hacer tus yogures">?</span>
+                </h2>
+                <div class="help-bubble">
+                    <strong>Paso 2:</strong> Elige un producto y dime cuánto vas a usar. Por ejemplo: 500 gramos de
+                    leche o 1 unidad de vaso.
+                </div>
+
+                <div id="receta-inputs" style="margin-top: 20px;">
+                    <div class="form-grid"
+                        style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <select id="select-ingrediente">
+                            <option value="">Selecciona un producto...</option>
+                        </select>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="number" id="uso-cantidad" placeholder="¿Cuánto?" style="flex: 1;">
+                            <span id="unidad-receta-label" class="unit-badge">g</span>
+                        </div>
+                    </div>
+                    <button id="btn-agregar-receta" class="btn btn-secondary" style="width: 100%;">
+                        🥛 Usar en la mezcla
+                    </button>
+                </div>
+
+                <div id="lista-receta" class="ingredient-list">
+                    <!-- La receta aparecerá aquí -->
+                </div>
+
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #EEE;">
+
+                <div class="input-group">
+                    <label>¿Cuántos vasos o envases salieron?</label>
+                    <input type="number" id="total-vasos" placeholder="Ej: 12" value="1">
+                </div>
+                <div class="input-group">
+                    <label>¿Cuánto quieres ganar? (%)</label>
+                    <select id="margen-ganancia">
+                        <option value="0.3">30% (Recomendado)</option>
+                        <option value="0.5">50% (Muy bueno)</option>
+                        <option value="1.0">100% (Duplicar inversión)</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Resultados -->
+            <section class="result-box animate" style="animation-delay: 0.3s;">
+                <h3>Precio Sugerido por Vaso</h3>
+                <div class="price-display">
+                    <span id="resultado-bs">0.00</span> <small style="font-size: 1.5rem;">Bs</small>
+                </div>
+                <div style="font-size: 1.2rem; opacity: 0.9;">
+                    ≈ <span id="resultado-usd">0.00</span> $
+                </div>
+                <p style="margin-top: 15px; font-size: 0.9rem;">
+                    Costo de producción: <span id="costo-produccion">0.00</span> Bs
+                </p>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/services/bcv.js"></script>
+    <script src="js/logic/calculadora.js"></script>
+    <script src="js/ui/handlers.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
