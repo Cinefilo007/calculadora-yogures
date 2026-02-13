@@ -3,138 +3,440 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Yogures - Mi Negocio Casero</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YogurtBusiness Pro - Gestión Inteligente</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/1047/1047461.png" type="image/x-icon">
+    <link rel="shortcut icon" href="icons/icon-192.png" type="image/x-icon">
+    <!-- PWA Optimizations iOS/Android v2.7 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
 </head>
 
 <body>
     <div class="container">
+        <!-- Banner de Alerta LocalStorage -->
+        <div id="storage-alert" class="alert-banner" style="display: none;">
+            <span>⚠️ Datos guardados localmente:</span>
+            <p>Si borras el historial o pierdes el móvil, perderás tus cuentas y clientes.</p>
+            <button id="btn-ver-respaldo" class="btn-link">Ver Respaldo</button>
+        </div>
+
         <header class="animate">
-            <h1>🍦 Calculadora de Yogures</h1>
-            <p>Calcula tus precios de forma fácil y rápida</p>
+            <h1>🍦 YogurtBusiness Pro</h1>
+            <p id="subtitulo-negocio">Cargando...</p>
             <div id="tasa-bcv-container" class="tasa-bcv">
-                <span>Dólar BCV:</span>
-                <strong id="tasa-valor">Cargando...</strong>
-                <button id="btn-editar-tasa"
-                    style="background: none; border: none; color: white; cursor: pointer; padding: 0 5px; font-size: 0.8rem;"
-                    title="Cambiar tasa manualmente">✏️</button>
+                <span>BCV:</span>
+                <strong id="tasa-valor">...</strong>
+                <button id="btn-editar-tasa" class="icon-btn">✏️</button>
             </div>
-            <p style="font-size: 0.75rem; margin-top: 5px; color: var(--mora-suave);">*Precios en Bolívares (Bs.)</p>
         </header>
 
-        <main>
-            <!-- Sección de Ingredientes -->
-            <section class="card animate" style="animation-delay: 0.1s;">
-                <h2>🛒 Materiales e Ingredientes
-                    <span class="help-icon" title="Aquí anotas lo que compraste en el mercado">?</span>
-                </h2>
-                <div class="help-bubble">
-                    <strong>Hola Mamá:</strong> Anota lo que compraste. Si es comida (leche, fruta) usa
-                    <strong>gramos</strong>. Si son envases o cucharillas, usa <strong>unidades</strong>.
-                </div>
+        <!-- Navegación -->
+        <nav class="main-nav animate">
+            <div class="nav-scroll">
+                <button class="nav-btn active" data-tab="calculadora">
+                    <span class="icon">🧮</span>
+                    <small>Calculadora</small>
+                </button>
+                <button class="nav-btn" data-tab="dashboard">
+                    <span class="icon">📊</span>
+                    <small>Mi Panel</small>
+                </button>
+                <button class="nav-btn" data-tab="inventario">
+                    <span class="icon">📦</span>
+                    <small>Nevera</small>
+                </button>
+                <button class="nav-btn" data-tab="calendario">
+                    <span class="icon">📅</span>
+                    <small>Agenda</small>
+                </button>
+                <button class="nav-btn" data-tab="clientes">
+                    <span class="icon">👥</span>
+                    <small>Clientes</small>
+                </button>
+            </div>
+        </nav>
 
-                <form id="form-ingrediente" style="margin-top: 20px;">
-                    <div class="form-grid" style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
-                        <div class="input-group">
-                            <label>Nombre del Producto</label>
-                            <input type="text" id="nombre-ingrediente" placeholder="Ej: Vasos" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Precio (Bs)</label>
-                            <input type="number" id="precio-ingrediente" step="0.01" placeholder="0.00" required>
-                        </div>
-                        <div class="input-group">
-                            <label>¿Cuánto trae?</label>
-                            <div style="display: flex; gap: 5px;">
-                                <input type="number" id="cantidad-ingrediente" placeholder="Ej: 50" required
-                                    style="flex: 2;">
-                                <select id="unidad-ingrediente" class="unit-selector" style="flex: 1;">
-                                    <option value="g">g</option>
-                                    <option value="uni">uni</option>
-                                </select>
+        <main>
+            <!-- VISTA: CALCULADORA -->
+            <div id="tab-calculadora" class="tab-content active">
+                <section class="card animate">
+                    <div class="section-header">
+                        <h2>🛒 Paso 1: Mis Ingredientes</h2>
+                        <button type="button" class="info-btn" onclick="UI.mostrarAyuda('insumos')">❓ Ayuda</button>
+                    </div>
+                    <p class="step-guide">Escribe aquí lo que compraste (leche, azúcar, vasos, etc.)</p>
+                    <form id="form-ingrediente" style="margin-top: 15px;">
+                        <input type="hidden" id="ingrediente-id-edit">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Producto</label>
+                                <input type="text" id="nombre-ingrediente" placeholder="Ej: Azúcar" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Precio Bs</label>
+                                <input type="number" id="precio-ingrediente" step="0.01" placeholder="0.00" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Cantidad</label>
+                                <div style="display: flex; gap: 4px;">
+                                    <input type="number" id="cantidad-ingrediente" placeholder="1000" required
+                                        style="flex: 2;">
+                                    <select id="unidad-ingrediente" class="unit-selector"
+                                        style="flex: 1.5; padding: 10px 5px;">
+                                        <option value="g">g</option>
+                                        <option value="uni">uni</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">➕ Añadir Insumo</button>
+                    </form>
+                    <div id="lista-ingredientes" class="list-container"></div>
+                    <div id="pag-ingredientes" class="pagination"></div>
+                </section>
+
+                <section class="card animate" style="animation-delay: 0.1s;">
+                    <div class="section-header">
+                        <h2>👩‍🍳 Paso 2: Crear la Mezcla</h2>
+                        <button type="button" class="info-btn" onclick="UI.mostrarAyuda('mezcla')">❓ Ayuda</button>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        ➕ Añadir a mi lista
-                    </button>
-                </form>
-
-                <div id="lista-ingredientes" class="ingredient-list">
-                    <!-- Los ingredientes aparecerán aquí -->
-                </div>
-            </section>
-
-            <!-- Sección de Receta -->
-            <section class="card animate" style="animation-delay: 0.2s;">
-                <h2>👩‍🍳 Tu Receta de Hoy
-                    <span class="help-icon" title="Anota cuánto usas de cada cosa para hacer tus yogures">?</span>
-                </h2>
-                <div class="help-bubble">
-                    <strong>Paso 2:</strong> Elige un producto y dime cuánto vas a usar. Por ejemplo: 500 gramos de
-                    leche o 1 unidad de vaso.
-                </div>
-
-                <div id="receta-inputs" style="margin-top: 20px;">
-                    <div class="form-grid"
-                        style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
-                        <select id="select-ingrediente">
-                            <option value="">Selecciona un producto...</option>
-                        </select>
-                        <div style="display: flex; align-items: center; gap: 5px;">
-                            <input type="number" id="uso-cantidad" placeholder="¿Cuánto?" style="flex: 1;">
-                            <span id="unidad-receta-label" class="unit-badge">g</span>
+                    <p class="step-guide">Selecciona qué ingredientes usarás para tus yogures hoy.</p>
+                    <div id="receta-inputs" style="margin-top: 15px;">
+                        <div class="form-grid-2">
+                            <select id="select-ingrediente">
+                                <option value="">Selección...</option>
+                            </select>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="number" id="uso-cantidad" placeholder="¿Cuánto?">
+                                <span id="unidad-receta-label" class="unit-badge">g</span>
+                            </div>
+                        </div>
+                        <button id="btn-agregar-receta" class="btn btn-secondary" style="width: 100%;">🥛 Usar en
+                            Mezcla</button>
+                    </div>
+                    <div id="lista-receta" class="list-container"></div>
+                    <hr style="margin: 20px 0; border:0; border-top: 1px solid #EEE;">
+                    <div class="form-grid-2">
+                        <div class="input-group">
+                            <label>Vasos Resultantes</label>
+                            <input type="number" id="total-vasos" value="1" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Ganancia %</label>
+                            <select id="margen-ganancia">
+                                <option value="0.30">30%</option>
+                                <option value="0.50">50%</option>
+                                <option value="1.00">100%</option>
+                            </select>
                         </div>
                     </div>
-                    <button id="btn-agregar-receta" class="btn btn-secondary" style="width: 100%;">
-                        🥛 Usar en la mezcla
-                    </button>
-                </div>
+                </section>
 
-                <div id="lista-receta" class="ingredient-list">
-                    <!-- La receta aparecerá aquí -->
-                </div>
+                <section class="result-box-pro animate">
+                    <div class="row-res">
+                        <div><small>INVERSIÓN:</small> <b id="calc-inversion">0.00 $</b></div>
+                        <div><small>GANANCIA:</small> <b id="calc-ganancia" style="color:#2ECC71;">0.00 $</b></div>
+                    </div>
+                    <div class="main-price">
+                        <span id="resultado-bs">0,00</span> <small>Bs</small>
+                        <div class="sub-usd">≈ <span id="resultado-usd">0.00</span> $</div>
+                    </div>
+                    <button id="btn-añadir-inventario" class="btn btn-success"
+                        style="width: 100%; font-size: 1.1rem;">📦 Paso 3: Guardar Yogurt para Vender</button>
+                </section>
+            </div>
 
-                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #EEE;">
+            <!-- VISTA: DASHBOARD -->
+            <div id="tab-dashboard" class="tab-content">
+                <section class="card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                        <h2>📊 Resultados</h2>
+                        <div class="chart-controls">
+                            <button id="btn-chart-prev" class="icon-btn">◀️</button>
+                            <span id="label-periodo" style="font-weight: 600; font-size: 0.85rem;">...</span>
+                            <button id="btn-chart-next" class="icon-btn">▶️</button>
+                            <select id="select-chart-vista" style="width: auto; padding: 4px 5px; font-size: 0.75rem;">
+                                <option value="mes">Mes</option>
+                                <option value="año">Año</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="stats-grid-pro">
+                        <div class="stat-item">
+                            <small>Vendido</small>
+                            <div id="dash-ventas-totales">0.00 $</div>
+                        </div>
+                        <div class="stat-item">
+                            <small>En Deuda</small>
+                            <div id="dash-por-cobrar" style="color: var(--fresa);">0.00 $</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px; height: 220px;">
+                        <canvas id="chart-ventas"></canvas>
+                    </div>
+                    <button id="btn-nueva-venta-dash" class="btn btn-primary" style="width: 100%; margin-top: 20px;">💰
+                        Registrar Venta Directa</button>
+                    <div id="ultimas-ventas" class="list-container" style="margin-top: 20px;"></div>
+                    <div id="pag-ventas" class="pagination"></div>
+                </section>
+            </div>
 
-                <div class="input-group">
-                    <label>¿Cuántos vasos o envases salieron?</label>
-                    <input type="number" id="total-vasos" placeholder="Ej: 12" value="1">
-                </div>
-                <div class="input-group">
-                    <label>¿Cuánto quieres ganar? (%)</label>
-                    <select id="margen-ganancia">
-                        <option value="0.3">30% (Recomendado)</option>
-                        <option value="0.5">50% (Muy bueno)</option>
-                        <option value="1.0">100% (Duplicar inversión)</option>
-                    </select>
-                </div>
-            </section>
+            <!-- VISTA: INVENTARIO -->
+            <div id="tab-inventario" class="tab-content">
+                <section class="card">
+                    <div class="section-header">
+                        <h2>📦 Mi Nevera (Stock)</h2>
+                        <button type="button" class="info-btn" onclick="UI.mostrarAyuda('inventario')">❓ Ayuda</button>
+                    </div>
+                    <div class="stats-grid-pro" style="margin-bottom: 20px;">
+                        <div class="stat-item">
+                            <small>Valor Stock</small>
+                            <div id="inv-valor-total">0.00 $</div>
+                        </div>
+                        <div class="stat-item">
+                            <small>Ganancia Potencial</small>
+                            <div id="inv-ganancia-total" style="color: #2ECC71;">0.00 $</div>
+                        </div>
+                    </div>
+                    <div id="lista-inventario" class="list-container"></div>
+                    <div id="pag-inventario" class="pagination"></div>
+                </section>
+            </div>
 
-            <!-- Resultados -->
-            <section class="result-box animate" style="animation-delay: 0.3s;">
-                <h3>Precio Sugerido por Vaso</h3>
-                <div class="price-display">
-                    <span id="resultado-bs">0.00</span> <small style="font-size: 1.5rem;">Bs</small>
-                </div>
-                <div style="font-size: 1.2rem; opacity: 0.9;">
-                    ≈ <span id="resultado-usd">0.00</span> $
-                </div>
-                <p style="margin-top: 15px; font-size: 0.9rem;">
-                    Costo de producción: <span id="costo-produccion">0.00</span> Bs
-                </p>
-            </section>
+            <!-- VISTA: CALENDARIO -->
+            <div id="tab-calendario" class="tab-content">
+                <section class="card">
+                    <div class="section-header">
+                        <h2>📅 Mi Agenda de Cobros</h2>
+                        <button type="button" class="info-btn" onclick="UI.mostrarAyuda('agenda')">❓ Ayuda</button>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div class="calendar-nav">
+                            <button id="btn-cal-prev" class="icon-btn">◀️</button>
+                            <span id="label-mes-calendario" style="font-weight: 600; font-size: 0.9rem;">...</span>
+                            <button id="btn-cal-next" class="icon-btn">▶️</button>
+                        </div>
+                    </div>
+                    <div id="calendario-grid" class="calendar-grid"></div>
+                    <div id="deudas-dia-seleccionado" class="list-container" style="margin-top: 20px;"></div>
+                </section>
+            </div>
+
+            <!-- VISTA: CLIENTES -->
+            <div id="tab-clientes" class="tab-content">
+                <section class="card">
+                    <h2>👥 Agenda de Clientes</h2>
+                    <form id="form-cliente" class="form-grid-2">
+                        <input type="text" id="nombre-cliente" placeholder="Nombre" required>
+                        <input type="text" id="tel-cliente" placeholder="WhatsApp" required>
+                        <button type="submit" class="btn btn-primary" style="grid-column: span 2;">➕ Guardar
+                            Cliente</button>
+                    </form>
+                    <div id="lista-clientes" class="list-container"></div>
+                    <div id="pag-clientes" class="pagination"></div>
+                </section>
+            </div>
         </main>
+
+        <footer class="main-footer animate">
+            <p><strong>YogurtBusiness Pro</strong> v2.7</p>
+            <p>Desarrollado por: <strong>Samuel Rojas</strong></p>
+            <div class="footer-links">
+                <a href="https://wa.me/584245762885" target="_blank" class="whatsapp-badge">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA"> Contacto
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODALES -->
+
+    <!-- MODAL: AÑADIR AL INVENTARIO -->
+    <div id="modal-inventario" class="modal" style="display: none;">
+        <div class="modal-content animate">
+            <div class="modal-header">
+                <h2>📦 Guardar en Nevera</h2>
+                <button onclick="UI.cerrarModal('modal-inventario')" class="btn-close">✖️</button>
+            </div>
+            <form id="form-guardar-inventario">
+                <div class="input-group">
+                    <label>Nombre del Producto</label>
+                    <input type="text" id="inv-nombre" placeholder="Ej: Yogurt Vaso 7oz Fresa" required>
+                </div>
+                <div class="form-grid-2">
+                    <div class="input-group">
+                        <label>Cantidad</label>
+                        <input type="number" id="inv-cantidad" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label>Precio Unitario ($)</label>
+                        <input type="number" id="inv-precio" step="0.01" required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-success">✅ Confirmar</button>
+                    <button type="button" onclick="UI.cerrarModal('modal-inventario')" class="btn btn-link"
+                        style="color:var(--texto)">Regresar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTRAR VENTA -->
+    <div id="modal-venta" class="modal" style="display: none;">
+        <div class="modal-content animate">
+            <div class="modal-header">
+                <h2>💰 Registrar Venta</h2>
+                <button onclick="UI.cerrarModal('modal-venta')" class="btn-close">✖️</button>
+            </div>
+            <form id="form-venta">
+                <div class="input-group">
+                    <label>Cliente</label>
+                    <div style="display: flex; gap: 8px;">
+                        <select id="venta-cliente" required style="flex:1"></select>
+                        <button type="button" onclick="UI.abrirModal('modal-cliente-rapido')" class="btn btn-secondary"
+                            style="padding:10px; font-size:1.2rem; display:flex; align-items:center; justify-content:center; color:white;">
+                            <span style="color:var(--crema); font-weight:800; font-size:24px; line-height:1;">+</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Producto</label>
+                    <select id="venta-producto" required></select>
+                </div>
+                <div class="form-grid-2">
+                    <div class="input-group">
+                        <label>Cantidad</label>
+                        <input type="number" id="venta-cantidad" value="1" min="1" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Método</label>
+                        <select id="venta-tipo">
+                            <option value="contado">Al Contado</option>
+                            <option value="credito">A Crédito</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="group-fecha-cobro" class="input-group" style="display: none;">
+                    <label>Fecha de Cobro Estimada</label>
+                    <input type="date" id="venta-fecha-cobro">
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">💵 Finalizar Venta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTRAR COBRO (DEUDA) -->
+    <div id="modal-cobro" class="modal" style="display: none;">
+        <div class="modal-content animate">
+            <div class="modal-header">
+                <h2>✅ Registrar Pago</h2>
+                <button onclick="UI.cerrarModal('modal-cobro')" class="btn-close">✖️</button>
+            </div>
+            <div id="info-cobro" style="margin-bottom: 20px; text-align: center;">
+                <p id="cobro-cliente" style="font-weight: 700; font-size: 1.2rem;"></p>
+                <p id="cobro-monto" style="font-size: 2rem; color: var(--fresa); font-weight: 800;"></p>
+            </div>
+            <p style="font-size: 0.85rem; color: #777; margin-bottom: 20px;">¿Confirmas que recibiste el pago de esta
+                deuda? Esto actualizará tus resultados del periodo.</p>
+            <div class="modal-actions">
+                <button id="btn-confirmar-cobro" class="btn btn-success" style="width: 100%;">Confirmar Cobro</button>
+                <button type="button" onclick="UI.cerrarModal('modal-cobro')" class="btn btn-link"
+                    style="color:var(--texto); width: 100%; margin-top: 10px;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CLIENTE RÁPIDO -->
+    <div id="modal-cliente-rapido" class="modal" style="display: none; z-index: 6000;">
+        <div class="modal-content animate">
+            <div class="modal-header">
+                <h2>👥 Nuevo Cliente</h2>
+                <button onclick="UI.cerrarModal('modal-cliente-rapido')" class="btn-close">✖️</button>
+            </div>
+            <form id="form-cliente-rapido">
+                <div class="input-group">
+                    <label>Nombre</label>
+                    <input type="text" id="rapido-nombre" placeholder="Nombre completo" required>
+                </div>
+                <div class="input-group">
+                    <label>WhatsApp</label>
+                    <input type="text" id="rapido-tel" placeholder="0424..." required>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">✅ Guardar Cliente</button>
+                    <button type="button" onclick="UI.cerrarModal('modal-cliente-rapido')" class="btn btn-link"
+                        style="color:var(--texto)">Regresar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: OPCIONES DE RESPALDO -->
+    <div id="modal-respaldo" class="modal" style="display: none;">
+        <div class="modal-content animate">
+            <div class="modal-header">
+                <h2>💾 Respaldo de Datos</h2>
+                <button onclick="UI.cerrarModal('modal-respaldo')" class="btn-close">✖️</button>
+            </div>
+            <p>Actualmente tus datos están <b>SOLO</b> en este teléfono.</p>
+            <div class="alert-info"
+                style="background:#FFF9C4; padding:15px; border-radius:15px; margin:15px 0; font-size:0.85rem; border-left: 5px solid #FBC02D;">
+                ⚠️ Si borras el historial o pierdes el móvil, <b>perderás tus cuentas y clientes</b>.
+            </div>
+            <p>Para mayor seguridad, conecta tu sistema a una hoja de <b>Google Sheets</b>.</p>
+            <div class="modal-actions">
+                <a href="https://wa.me/584245762885?text=Hola!%20Quiero%20activar%20el%20respaldo%20en%20la%20nube"
+                    target="_blank" class="btn btn-whatsapp">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="18"> Solicitar
+                    Activación
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ONBOARDING -->
+    <div id="modal-onboarding" class="modal" style="display: none;">
+        <div class="modal-content animate">
+            <h2>¡Bienvenida! 🍦</h2>
+            <p>Configura tu negocio para empezar:</p>
+            <form id="form-onboarding">
+                <div class="input-group">
+                    <label>Nombre del Negocio</label>
+                    <input type="text" id="on-nombre-negocio" placeholder="Ej: Yogures El Sol" required>
+                </div>
+                <div class="input-group">
+                    <label>Tu Nombre</label>
+                    <input type="text" id="on-nombre-dueña" placeholder="Tu nombre" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">Empezar
+                    Ahora</button>
+            </form>
+        </div>
     </div>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/services/bcv.js"></script>
+    <script src="js/services/telemetria.js"></script>
     <script src="js/logic/calculadora.js"></script>
+    <script src="js/logic/crm_logic.js"></script>
+    <script src="js/logic/calendar_logic.js"></script>
     <script src="js/ui/handlers.js"></script>
     <script src="js/app.js"></script>
 </body>

@@ -2,17 +2,23 @@
  * Punto de entrada de la aplicación
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Inicializar UI
+    // Inicializar la interfaz de usuario
     UI.init();
 
-    // Obtener tasa del dólar del BCV
-    const tasa = await BCVService.obtenerTasaDolar();
-    if (tasa) {
-        UI.setTasa(tasa);
-    } else if (!UI.tasaDolar) {
-        // Solo si no hay una tasa manual previa o cargada
-        UI.setTasa(0);
+    // Intentar obtener la tasa oficial del BCV
+    console.log('Obteniendo tasa oficial BCV...');
+    try {
+        const tasa = await BCVService.obtenerTasaDolar();
+        if (tasa) {
+            UI.setTasa(tasa);
+            console.log('Tasa BCV cargada:', tasa);
+        } else if (!UI.tasaDolar) {
+            UI.setTasa(0);
+            console.warn('No se pudo obtener la tasa y no hay tasa manual guardada.');
+        }
+    } catch (error) {
+        console.error('Error al iniciar servicios:', error);
     }
 
-    console.log('Calculadora de Yogures iniciada correctamente.');
+    console.log('🍦 YogurtBusiness listo para trabajar.');
 });
