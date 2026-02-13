@@ -312,7 +312,6 @@ const UI = {
 
     // --- VENTAS ---
     abrirModalVenta() {
-        if (!this.clientes.length) return alert('Registra clientes primero.');
         if (!this.inventario.length) return alert('No hay stock en nevera.');
 
         this.actualizarSelectoresVenta();
@@ -324,7 +323,10 @@ const UI = {
         const selP = document.getElementById('venta-producto');
         const inputCant = document.getElementById('venta-cantidad');
 
-        selC.innerHTML = this.clientes.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+        selC.innerHTML = this.clientes.length
+            ? this.clientes.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')
+            : '<option value="">(Sin clientes registrados)</option>';
+
         selP.innerHTML = this.inventario.map(p => `<option value="${p.id}">${p.nombre} (${p.stock})</option>`).join('');
 
         // Validación stock v2.5
@@ -341,11 +343,32 @@ const UI = {
         document.getElementById('venta-tipo').value = 'contado';
     },
 
+    agregarCliente() {
+        const nombre = document.getElementById('nombre-cliente').value;
+        const tel = document.getElementById('tel-cliente').value;
+
+        if (!nombre || !tel) return alert('Por favor, completa nombre y teléfono.');
+
+        const nuevo = {
+            id: Date.now(),
+            nombre,
+            tel
+        };
+
+        this.clientes.push(nuevo);
+        this.guardarDatos();
+        this.render();
+        document.getElementById('form-cliente').reset();
+        alert('✅ Cliente guardado con éxito.');
+    },
+
     agregarClienteRapido() {
         const nombre = document.getElementById('rapido-nombre').value;
         const tel = document.getElementById('rapido-tel').value;
 
-        const nuevo = { id: Date.now(), nombre, tel };
+        if (!nombre) return alert('El nombre es obligatorio.');
+
+        const nuevo = { id: Date.now(), nombre, tel: tel || '0000000000' };
         this.clientes.push(nuevo);
         this.guardarDatos();
         this.actualizarSelectoresVenta();
