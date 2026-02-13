@@ -1,40 +1,55 @@
-# 🍦 Calculadora de Yogures Caseros
+# 🍦 YogurtBusiness Pro v2.9
 
-Una herramienta estética, sencilla y potente diseñada para pequeños emprendimientos de yogures artesanales. Optimizada para ser utilizada por personas mayores y adaptada 100% a la realidad económica de Venezuela.
+**Gestión inteligente y estética para el negocio de yogurt casero.** 🍧✨
 
-![Interfaz de la calculadora](https://raw.githubusercontent.com/antigravity-ai/assets/main/yogurt-calc-preview.png) *(Nota: Reemplazar con captura real al subir)*
+Esta aplicación ha evolucionado desde una calculadora simple hasta un sistema de gestión integral (CRM) diseñado específicamente para ser **fácil de usar para adultos mayores**, 100% adaptable a la realidad económica de Venezuela y optimizada como una **PWA profesional**.
 
-## ✨ Características Principales
+---
 
-- **🎨 Diseño Premium**: Interfaz "cremosa" y suave con colores inspirados en el yogurt (fresa, mora, melocotón).
-- **📱 Mobile First**: Diseñada para funcionar perfectamente en teléfonos móviles sin desbordamientos.
-- **🇻🇪 Adaptada a Venezuela**: 
-  - Formato numérico local (punto para miles, coma para decimales).
-  - Consulta automática del precio del dólar oficial del **BCV**.
-  - Opción de ajuste manual de la tasa con memoria persistente.
-- **👩‍🍳 Facilidad de Uso**: Incluye burbujas de ayuda con lenguaje sencillo ("Hola Mamá") para guiar a la usuaria en cada paso.
-- **📦 Soporte Multimedida**: Permite calcular utilizando **gramos** (para ingredientes) y **unidades** (para envases, cucharillas, etc.).
-- **💾 Sin Base de Datos**: Utiliza `localStorage` para guardar ingredientes y recetas directamente en el navegador de forma segura.
+## 🌟 Lo Nuevo en la Versión Pro (v2.1 - v2.9)
 
-## 🚀 Despliegue Rápido (GitHub Pages)
+### 📈 CRM y Control de Negocio
+- **Panel de Control (Dashboard)**: Gráficas dinámicas de ventas al contado vs. crédito y métricas de ganancias reales.
+- **Nevera Virtual (Inventario)**: Control de stock por unidades con cálculo automático de costo unitario y márgenes de ganancia.
+- **Gestión de Deudas**: Calendario interactivo de cobros con indicadores visuales de deudas pendientes.
+- **Vínculo con WhatsApp**: Envío de mensajes de cobro personalizados con un solo clic.
 
-Este proyecto está construido con **JavaScript puro**, lo que facilita su despliegue en menos de 2 minutos:
+### 📱 Experiencia PWA Multiplataforma
+- **Optimización para iOS y Android**: Instalable como una app nativa, con iconos locales de alta resolución (**192px** y **512px**) y soporte **Maskable**.
+- **Modo Offline**: Gracias al Service Worker v2.8, la app funciona perfectamente sin conexión a internet.
+- **Estética "Creamy"**: Interfaz refinada con paletas de colores suaves (Fresa, Mora, Crema) y micro-animaciones premium.
 
-1. Crea un repositorio en GitHub.
-2. Sube los archivos: `index.html`, `css/`, y `js/`.
-3. Ve a **Settings > Pages** en tu repositorio.
-4. Selecciona la rama `main` y haz clic en **Save**.
-5. ¡Listo! Tu calculadora estará online en `https://tu-usuario.github.io/tu-repo/`.
+### ♿ Accesibilidad y Guía Familiar
+- **Interfaz Dual**: Botones con iconos y texto descriptivo para una navegación clara.
+- **Guía Paso a Paso**: Burbujas de ayuda ("¿Qué hago aquí?") integradas en cada sección.
+- **Onboarding Fluido**: Proceso de registro de negocio asistido que guía a la usuaria desde el primer segundo.
+- **Seguridad**: Banner persistente de recordatorio de respaldo de datos locales.
 
-## 🛠️ Estructura del Proyecto
+---
 
-El código sigue una arquitectura modular de separación de preocupaciones:
+## 🇻🇪 Adaptación Local (Venezuela)
+- **Tasa BCV Automática**: Consulta en tiempo real de la tasa oficial.
+- **Ajuste Manual**: Permite fijar una tasa de cambio personalizada que se guarda automáticamente.
+- **Multimoneda**: Los cálculos muestran precios en Bolívares y Dólares simultáneamente.
 
-- `js/logic/calculadora.js`: Lógica pura de cálculos matemáticos.
-- `js/services/bcv.js`: Servicio de obtención de tasa cambiaria (Scraping + Proxy).
-- `js/ui/handlers.js`: Gestión de eventos y renderizado de la interfaz.
-- `css/styles.css`: Sistema de diseño responsivo y estética visual.
+---
+
+## 🛠️ Estructura Técnica
+Sigue una arquitectura modular Clean Code:
+- `js/logic/`: Lógica central (Cálculos, CRM, Calendario).
+- `js/ui/`: Orquestador de la interfaz y manejo de eventos.
+- `js/services/`: Conexión con servicios externos y telemetría.
+- `manifest.json` & `sw.js`: Configuración de aplicación web progresiva de vanguardia.
+
+---
+
+## 🚀 Despliegue en GitHub Pages
+La aplicación está diseñada para ser alojada de forma gratuita:
+1. Sube los archivos a un repositorio de GitHub.
+2. Activa **Settings > Pages > Branch: main**.
+3. Accede desde cualquier móvil u ordenador.
+
+---
 
 ## 📄 Licencia
-
-Este proyecto es de código abierto. ¡Siéntete libre de usarlo para impulsar tu propio negocio familiar! ❤️
+Este proyecto es de código abierto. Creado con ❤️ para impulsar el emprendimiento familiar. 🍨🚀✨
