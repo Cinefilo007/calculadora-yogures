@@ -6,7 +6,7 @@
 const SheetsService = {
     // ESTA URL DEBE SER REEMPLAZADA POR EL ADMINISTRADOR DESPUÉS DE IMPLEMENTAR EL SCRIPT
     // Por ahora se guarda en localStorage si el admin la configura dinámicamente o se deja fija aquí
-    BRIDGE_URL: "https://script.google.com/macros/s/AKfycbzxYvNiXqHtmbqwQQRJLFX4t6iVw5nCXCjyXZZz1TMGMM_vwtj_RewD4RtGkJ7F9d8VFg/exec",
+    BRIDGE_URL: "https://script.google.com/macros/s/AKfycbziyIIo14NAVtC2CZBxBOesMhOWnMOkEC4DHDUCPHwjpxVkgboYxN4nIGU40lzonhr13A/exec",
 
     /**
      * Intenta sincronizar todos los datos al Master Bridge
