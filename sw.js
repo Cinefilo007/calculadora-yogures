@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yogurt-pro-v2.8';
+const CACHE_NAME = 'yogurt-pro-v3.0';
 const ASSETS = [
     './',
     './index.html',
@@ -10,6 +10,7 @@ const ASSETS = [
     './js/logic/calendar_logic.js',
     './js/services/bcv.js',
     './js/services/telemetria.js',
+    './js/services/sheets_service.js',
     './icons/icon-192.png',
     './icons/icon-512.png'
 ];

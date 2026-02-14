@@ -11,6 +11,10 @@ const UI = {
     tasaDolar: 0,
     currentTab: 'calculadora',
 
+    // Premium v3.0
+    isPremium: false,
+    sheetLink: '',
+
     // Paginación
     paginas: {
         ingredientes: 1,
@@ -160,10 +164,12 @@ const UI = {
         // Respaldo
         document.getElementById('btn-ver-respaldo').onclick = () => this.abrirModal('modal-respaldo');
 
-        // Control fecha cobro v2.5
         document.getElementById('venta-tipo').onchange = (e) => {
             document.getElementById('group-fecha-cobro').style.display = e.target.value === 'credito' ? 'block' : 'none';
         };
+
+        // Activación Premium v3.0
+        document.getElementById('btn-activar-nube').onclick = () => this.activarPremium();
     },
 
     // --- SISTEMA DE TABS ---
@@ -613,20 +619,88 @@ const UI = {
         this.calcularFinal();
     },
 
+    // --- LÓGICA PREMIUM v3.0 ---
+    async activarPremium() {
+        const link = document.getElementById('input-link-nube').value;
+        if (!link) return alert("Por favor, pega el link de tu hoja de cálculo.");
+
+        const btn = document.getElementById('btn-activar-nube');
+        const originalText = btn.textContent;
+        btn.textContent = "⌛ Verificando...";
+        btn.disabled = true;
+
+        const res = await SheetsService.validarAcceso(link);
+
+        btn.disabled = false;
+        btn.textContent = originalText;
+
+        if (res.status === 200 || res.status === 302) { // 302 es por los redirects de Google
+            this.isPremium = true;
+            this.sheetLink = link;
+            this.guardarDatos();
+            this.actualizarUIRespaldo();
+            alert("🚀 ¡YogurtBusiness Pro PREMIUM ACTIVADO! Tus datos ahora se respaldan en la nube.");
+        } else {
+            alert(res.message || "No se pudo activar. Asegúrate de que el administrador te ha dado permiso.");
+        }
+    },
+
+    actualizarUIRespaldo() {
+        const badge = document.getElementById('status-nube');
+        const form = document.getElementById('premium-form');
+        if (this.isPremium) {
+            if (badge) badge.style.display = 'block';
+            if (form) form.style.display = 'none';
+            document.querySelector('.alert-info').innerHTML = "✨ <b>Tus datos están seguros</b>. Se sincronizan automáticamente con Google Sheets.";
+        }
+    },
+
+    async sincronizarConNube() {
+        if (!this.isPremium || !this.sheetLink) return;
+
+        const fullData = {
+            ingredientes: this.ingredientes,
+            receta: this.receta,
+            clientes: this.clientes,
+            ventas: this.ventas,
+            inventario: this.inventario,
+            tasaDolar: this.tasaDolar,
+            config: {
+                negocio: localStorage.getItem('yogures_nombre_negocio'),
+                dueña: localStorage.getItem('yogures_dueña')
+            }
+        };
+
+        await SheetsService.sincronizarTodo(this.sheetLink, fullData);
+    },
+
     guardarDatos() {
         localStorage.setItem('yogures_ingredientes', JSON.stringify(this.ingredientes));
         localStorage.setItem('yogures_receta', JSON.stringify(this.receta));
         localStorage.setItem('yogures_clientes', JSON.stringify(this.clientes));
         localStorage.setItem('yogures_ventas', JSON.stringify(this.ventas));
         localStorage.setItem('yogures_inventario', JSON.stringify(this.inventario));
+        // Guardar estado Premium
+        localStorage.setItem('yogures_premium', this.isPremium);
+        localStorage.setItem('yogures_sheet_link', this.sheetLink);
+
+        // Disparar sincronización silenciosa si es Premium
+        this.sincronizarConNube();
     },
+
     cargarDatos() {
         this.ingredientes = JSON.parse(localStorage.getItem('yogures_ingredientes') || '[]');
         this.receta = JSON.parse(localStorage.getItem('yogures_receta') || '[]');
         this.clientes = JSON.parse(localStorage.getItem('yogures_clientes') || '[]');
         this.ventas = JSON.parse(localStorage.getItem('yogures_ventas') || '[]');
         this.inventario = JSON.parse(localStorage.getItem('yogures_inventario') || '[]');
-        this.tasaDolar = parseFloat(localStorage.getItem('yogures_tasa_manual') || '393.22'); // Fallback razonable
+        this.tasaDolar = parseFloat(localStorage.getItem('yogures_tasa_manual') || '393.22');
+
+        // Cargar estado Premium
+        this.isPremium = localStorage.getItem('yogures_premium') === 'true';
+        this.sheetLink = localStorage.getItem('yogures_sheet_link') || '';
+
+        setTimeout(() => this.actualizarUIRespaldo(), 500); // Dar tiempo al DOM
     },
 
     eliminarIngrediente(id) { this.ingredientes = this.ingredientes.filter(i => i.id !== id); this.guardarDatos(); this.render(); },
