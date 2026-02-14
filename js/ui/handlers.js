@@ -648,10 +648,30 @@ const UI = {
     actualizarUIRespaldo() {
         const badge = document.getElementById('status-nube');
         const form = document.getElementById('premium-form');
+        const textoLocal = document.getElementById('texto-respaldo-local');
+        const alertTop = document.getElementById('storage-alert');
+
         if (this.isPremium) {
             if (badge) badge.style.display = 'block';
             if (form) form.style.display = 'none';
-            document.querySelector('.alert-info').innerHTML = "✨ <b>Tus datos están seguros</b>. Se sincronizan automáticamente con Google Sheets.";
+            if (textoLocal) textoLocal.style.display = 'none';
+
+            // Actualizar Alerta Superior
+            if (alertTop) {
+                alertTop.style.background = "linear-gradient(135deg, #E8F5E9, #C8E6C9)";
+                alertTop.style.borderLeft = "5px solid #2E7D32";
+                alertTop.innerHTML = `
+                    <div style="flex:1">
+                        <b style="color:#2E7D32">✨ Nube Activada:</b> 
+                        Tus datos se respaldan correctamente en Google Sheets.
+                    </div>
+                    <button id="btn-ver-respaldo" class="btn btn-sm btn-success" style="padding: 5px 15px; font-size: 0.75rem;">Configurar</button>
+                `;
+                // Re-bind el evento ya que hemos re-escrito el innerHTML
+                document.getElementById('btn-ver-respaldo').onclick = () => this.abrirModal('modal-respaldo');
+            }
+
+            document.querySelector('.alert-info').innerHTML = "✨ <b>Tu información está segura</b>. Todas tus ventas y clientes se guardan en tiempo real en la nube.";
         }
     },
 
