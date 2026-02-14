@@ -48,22 +48,39 @@ const SheetsService = {
      * (Usaremos un fetch normal aquí para obtener respuesta JSON)
      */
     async validarAcceso(sheetLink) {
-        if (!this.BRIDGE_URL) return { status: 404, message: "Configuración incompleta" };
+        console.log("🔍 Intentando validar acceso para:", sheetLink);
+        if (!this.BRIDGE_URL) {
+            console.error("❌ ERROR: BRIDGE_URL no definida en sheets_service.js");
+            return { status: 404, message: "URL de Bridge no configurada" };
+        }
 
         try {
             const payload = {
                 sheetLink: sheetLink,
-                action: "VALIDATE" // Una acción ligera solo para check
+                action: "VALIDATE"
             };
+
+            console.log("📤 Enviando Payload:", payload);
 
             const resp = await fetch(this.BRIDGE_URL, {
                 method: 'POST',
                 body: JSON.stringify(payload)
             });
 
-            return await resp.json();
+            const rawText = await resp.text();
+            console.log("📥 Respuesta Cruda del Servidor:", rawText);
+
+            try {
+                const json = JSON.parse(rawText);
+                return json;
+            } catch (e) {
+                console.warn("⚠️ La respuesta no es JSON, devolviendo texto plano.");
+                return { status: resp.status, message: rawText };
+            }
+
         } catch (error) {
-            return { status: 500, message: "Error al verificar suscripción." };
+            console.error("❌ Fallo en la comunicación con el Bridge:", error);
+            return { status: 500, message: "Error de red: " + error.message };
         }
     }
 };
